@@ -93,8 +93,8 @@ export const translations: Translations = {
   walkTimeAlert: { ko: "지속적인 고온 알림", en: "Sustained Heat Alert", ja: "継続する高温アラート", zh: "持续高温警报" },
   walkTimeDesc: { 
     ko: "노면 온도가 {temp} 이상일 때 5분간 지속되면 알림", 
-    en: "Alert if surface temperature stays above {temp}\nfor 5 minutes", 
-    ja: "路面温度が{temp}以上の状態が5分間続くと\nアラート", 
+    en: "Alert if surface temperature stays above {temp} for 5 minutes", 
+    ja: "路面温度が{temp}以上の状態が5分間続くとアラート", 
     zh: "路面温度持续高于{temp}达5分钟时提醒", 
   },//この下はok
   // ↑↑↑↑↑↑ ここまで修正しました ↑↑↑↑↑↑
