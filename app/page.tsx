@@ -12,7 +12,6 @@ import { TopBar } from "@/components/top-bar"
 // 型定義
 export type Language = "ko" | "en" | "ja" | "zh"
 export type Page = "dashboard" | "detail" | "history" | "settings" | "info"
-// ↓↓↓↓↓↓ ここに Unit 型を追加しました ↓↓↓↓↓↓
 export type Unit = "C" | "F"
 
 export interface WalkReport {
@@ -26,8 +25,15 @@ export interface WalkReport {
   memo: string;
 }
 
-export interface AppState {
+// ↓↓↓↓↓↓ ここから修正しました ↓↓↓↓↓↓
+export interface AppSettings {
   language: Language
+  unit: Unit
+  dangerTempAlertEnabled: boolean
+  walkTimeAlertEnabled: boolean
+}
+
+export interface AppState extends AppSettings {
   currentPage: Page
   asphaltTemp: number
   airTemp: number
@@ -41,13 +47,14 @@ export interface AppState {
     cautionTime: number;
     dangerTime: number;
   }
-  // ↓↓↓↓↓↓ ここに unit を追加しました ↓↓↓↓↓↓
-  unit: Unit 
 }
 
 export default function DogWalkSafetyApp() {
   const [appState, setAppState] = useState<AppState>({
-    language: "ja",
+    language: "en",
+    unit: "C", 
+    dangerTempAlertEnabled: true,
+    walkTimeAlertEnabled: true,
     currentPage: "dashboard",
     asphaltTemp: 28,
     airTemp: 26,
@@ -57,16 +64,31 @@ export default function DogWalkSafetyApp() {
     walkStartTime: null,
     walkDuration: 0,
     currentWalkData: { safeTime: 0, cautionTime: 0, dangerTime: 0 },
-    // ↓↓↓↓↓↓ ここに unit の初期値を追加しました ↓↓↓↓↓↓
-    unit: "C", 
   })
 
+  // アプリ起動時にlocalStorageから設定を読み込む
+  useEffect(() => {
+    const savedSettingsJSON = localStorage.getItem('userSettings');
+    if (savedSettingsJSON) {
+      const savedSettings: AppSettings = JSON.parse(savedSettingsJSON);
+      setAppState(prev => ({ ...prev, ...savedSettings }));
+    }
+  }, []);
+
+  // 設定が変更されるたびにlocalStorageに保存する
+  useEffect(() => {
+    const { language, unit, dangerTempAlertEnabled, walkTimeAlertEnabled } = appState;
+    const userSettings: AppSettings = { language, unit, dangerTempAlertEnabled, walkTimeAlertEnabled };
+    localStorage.setItem('userSettings', JSON.stringify(userSettings));
+  }, [appState.language, appState.unit, appState.dangerTempAlertEnabled, appState.walkTimeAlertEnabled]);
+  
   const updateAppState = (updates: Partial<AppState> | ((prevState: AppState) => Partial<AppState>)) => {
     setAppState((prev) => ({ 
       ...prev, 
       ...(typeof updates === 'function' ? updates(prev) : updates) 
     }));
   };
+// ↑↑↑↑↑↑ ここまで修正しました ↑↑↑↑↑↑
 
   const toggleWalkState = () => {
     if (appState.isWalking) {

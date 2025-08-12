@@ -46,22 +46,29 @@ export function SettingsPage({ appState, updateAppState }: SettingsPageProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* ↓↓↓↓↓↓ ここから修正しました ↓↓↓↓↓↓ */}
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">{t("dangerTempAlert")}</div>
               <div className="text-sm text-gray-600">{dangerTempDesc}</div>
             </div>
-            <Switch defaultChecked />
+            <Switch 
+              checked={appState.dangerTempAlertEnabled}
+              onCheckedChange={(checked) => updateAppState({ dangerTempAlertEnabled: checked })}
+            />
           </div>
 
           <div className="flex items-center justify-between">
             <div>
               <div className="font-medium">{t("walkTimeAlert")}</div>
-              {/* ↓↓↓↓↓↓ この行に className を追加しました ↓↓↓↓↓↓ */}
               <div className="text-sm text-gray-600 whitespace-pre-line">{walkTimeDesc}</div>
             </div>
-            <Switch defaultChecked />
+            <Switch 
+              checked={appState.walkTimeAlertEnabled}
+              onCheckedChange={(checked) => updateAppState({ walkTimeAlertEnabled: checked })}
+            />
           </div>
+          {/* ↑↑↑↑↑↑ ここまで修正しました ↑↑↑↑↑↑ */}
         </CardContent>
       </Card>
 
