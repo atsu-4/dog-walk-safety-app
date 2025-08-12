@@ -8,7 +8,6 @@ import { SettingsPage } from "@/components/settings-page"
 import { InfoPage } from "@/components/info-page"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { TopBar } from "@/components/top-bar"
-// ↓↓↓↓↓↓ ここから修正しました ↓↓↓↓↓↓
 import { SplashScreen } from "@/components/splash-screen"
 
 // 型定義
@@ -67,23 +66,40 @@ export default function DogWalkSafetyApp() {
     currentWalkData: { safeTime: 0, cautionTime: 0, dangerTime: 0 },
   })
   
-  // 初期化が完了したかを管理する新しいstate
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // アプリ起動時にlocalStorageから設定を読み込む
+  // ↓↓↓↓↓↓ ここから修正しました ↓↓↓↓↓↓
+  // アプリ起動時に設定を読み込み、最低1.5秒はスプラッシュ画面を表示する
   useEffect(() => {
-    const savedSettingsJSON = localStorage.getItem('userSettings');
-    if (savedSettingsJSON) {
-      const savedSettings: AppSettings = JSON.parse(savedSettingsJSON);
-      updateAppState(savedSettings);
-    }
-    // 設定の読み込みが完了したら、初期化完了フラグを立てる
-    setIsInitialized(true);
+    const initializeApp = async () => {
+      // 1. 設定を読み込む処理
+      const loadSettings = new Promise<void>(resolve => {
+        const savedSettingsJSON = localStorage.getItem('userSettings');
+        if (savedSettingsJSON) {
+          const savedSettings: AppSettings = JSON.parse(savedSettingsJSON);
+          updateAppState(savedSettings);
+        }
+        resolve();
+      });
+
+      // 2. 最低1.5秒待つ処理
+      const minimumDelay = new Promise<void>(resolve => {
+        setTimeout(resolve, 1500); // 1.5秒 = 1500ミリ秒
+      });
+
+      // 両方の処理が終わるのを待つ
+      await Promise.all([loadSettings, minimumDelay]);
+
+      // 初期化完了
+      setIsInitialized(true);
+    };
+
+    initializeApp();
   }, []);
+  // ↑↑↑↑↑↑ ここまで修正しました ↑↑↑↑↑↑
 
   // 設定が変更されるたびにlocalStorageに保存する
   useEffect(() => {
-    // isInitializedがfalseの間は、初期設定を保存しないようにする
     if (!isInitialized) return;
 
     const { language, unit, dangerTempAlertEnabled, walkTimeAlertEnabled } = appState;
@@ -97,7 +113,6 @@ export default function DogWalkSafetyApp() {
       ...(typeof updates === 'function' ? updates(prev) : updates) 
     }));
   };
-  // ↑↑↑↑↑↑ ここまで修正しました ↑↑↑↑↑↑
 
   const toggleWalkState = () => {
     if (appState.isWalking) {
@@ -192,8 +207,6 @@ export default function DogWalkSafetyApp() {
     };
   }, [appState.isWalking, appState.walkStartTime]);
 
-  // ↓↓↓↓↓↓ ここから修正しました ↓↓↓↓↓↓
-  // 初期化が完了するまでスプラッシュ画面を表示
   if (!isInitialized) {
     return <SplashScreen />;
   }
@@ -205,5 +218,4 @@ export default function DogWalkSafetyApp() {
       <BottomNavigation appState={appState} updateAppState={updateAppState} />
     </div>
   )
-  // ↑↑↑↑↑↑ ここまで修正しました ↑↑↑↑↑↑
 }
