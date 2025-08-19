@@ -22,9 +22,18 @@ export const toFahrenheit = (celsius: number): number => {
  * @param includeUnit - trueの場合、単位記号（°C/°F）を末尾に追加します
  * @returns フォーマットされた温度文字列
  */
-export const formatTemperature = (tempC: number, unit: "C" | "F", includeUnit: boolean = true): string => {
+export const formatTemperature = (
+  tempC: number | undefined,
+  unit: "C" | "F" = "C",
+  includeUnit: boolean = true
+): string => {
+  if (tempC === undefined || tempC === null) {
+    return "-"; // 값이 없을 때는 대시(-) 표시
+  }
+
   const temp = unit === "F" ? toFahrenheit(tempC) : tempC;
   const unitSymbol = includeUnit ? (unit === "F" ? "°F" : "°C") : "";
   return `${temp.toFixed(1)}${unitSymbol}`;
 };
+
 // ↑↑↑↑↑↑ ここまで追加しました ↑↑↑↑↑↑
